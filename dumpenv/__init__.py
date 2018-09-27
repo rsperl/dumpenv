@@ -38,7 +38,10 @@ def name_of_environment():
 
 
 def dump_data(env_data):
-    out_dir = tempfile.mkdtemp(prefix="dumpenv_%s_" % name_of_environment())
+    out_dir = os.getenv(
+        "DUMPENV_OUTPUT_DIRECTORY",
+        tempfile.mkdtemp(prefix="dumpenv_%s_" % name_of_environment()),
+    )
     for key, lines in env_data.items():
         with open(os.path.join(out_dir, key), "wt") as fd:
             for line in lines:

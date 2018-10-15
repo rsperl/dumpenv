@@ -1,12 +1,12 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import os
-import platform
 import pwd
 import sys
-import tempfile
-
 import site
+import platform
+import tempfile
 import subprocess
 
 
@@ -117,14 +117,16 @@ def os_module():
         "getlogin",
         "getpgrp",
         "getuid",
+        "getresuid",
+        "getresgid",
     ]
-    if sys.platform != "darwin":
-        allfuncs += ["getresuid", "getresgid"]
     for func in allfuncs:
         try:
             values.append("%s(): %s" % (func, getattr(os, func)()))
         except OSError as exc:
             values.append("%s: [%s]" % (func, exc))
+        except AttributeError as e:
+            pass # macos lacks certain methods
     values.append("umask: %s" % oct(get_umask()))
     return values
 
@@ -147,11 +149,14 @@ def sys_module():
         "maxsize",
         "maxunicode",
         "meta_path",
+        "maxint",
+        "py2kwarning",
     ]
-    if sys.platform != "darwin":
-        allattrs += ["maxint", "py3kwarning"]
     for attr in allattrs:
-        values.append("%s: %s" % (attr, getattr(sys, attr)))
+        try:
+            values.append("%s: %s" % (attr, getattr(sys, attr)))
+        except AttributeError as e:
+            pass # macos lacks certain methods
     for func in [
         "getcheckinterval",
         "getdefaultencoding",
